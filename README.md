@@ -1,4 +1,4 @@
-/youthguard# YouthGuard: On-Chain Credential & Legal Protocol
+ YouthGuard: On-Chain Credential & Legal Protocol
 
 YouthGuard is a decentralized protocol designed to bridge the gap between real-world legal identity and on-chain credential verification. We focus on protecting youth and providing secure, immutable digital identities.
 
