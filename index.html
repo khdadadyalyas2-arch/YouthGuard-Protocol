@@ -2,19 +2,251 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>پروتکل گارد جوانان | YouthGuard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouthGuard Protocol | هوش مصنوعی دستیار بانکی و وب۳</title>
     <style>
-        body { font-family: Tahoma, sans-serif; text-align: center; padding: 50px; background-color: #f4f4f9; }
-        .container { max-width: 600px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; }
-        p { color: #666; }
+        :root {
+            --bg: #0b0f19;
+            --card: #141c2f;
+            --primary: #00ffcc;
+            --secondary: #8b5cf6;
+            --text: #e2e8f0;
+            --dim: #94a3b8;
+        }
+        * { box-sizing: border-box; font-family: "Segoe UI", Tahoma, sans-serif; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        .app { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: 12px; }
+        .card {
+            background: var(--card);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 8px 24px rgba(0,0,0,.4);
+        }
+        .header { text-align: center; }
+        .header h1 { margin: 0; font-size: 1.25rem; color: var(--primary); }
+        .header p { margin: 4px 0 0; font-size: .8rem; color: var(--dim); }
+        .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .btn {
+            padding: 11px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: .8rem;
+            color: #fff;
+            transition: 0.2s;
+        }
+        .btn-evm { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+        .btn-sol { background: linear-gradient(135deg, #9333ea, #7e22ce); }
+        .status {
+            margin-top: 8px;
+            font-size: .75rem;
+            color: var(--primary);
+            text-align: center;
+            word-break: break-all;
+            min-height: 16px;
+        }
+        .chat {
+            height: 320px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: rgba(0,0,0,.25);
+            border-radius: 12px;
+            padding: 12px;
+        }
+        .msg {
+            max-width: 85%;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: .82rem;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+        .bot {
+            align-self: flex-start;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.05);
+        }
+        .user {
+            align-self: flex-end;
+            background: linear-gradient(135deg, var(--secondary), #4f46e5);
+            color: #fff;
+        }
+        .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .chip {
+            background: rgba(255,255,255,.07);
+            border: 1px solid rgba(255,255,255,.12);
+            color: var(--text);
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: .7rem;
+            cursor: pointer;
+        }
+        .chip:hover { border-color: var(--primary); }
+        .inputbar { display: flex; gap: 8px; margin-top: 10px; }
+        input {
+            flex: 1;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.15);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
+            outline: none;
+            font-size: .85rem;
+        }
+        input:focus { border-color: var(--primary); }
+        .send {
+            background: var(--primary);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 0 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>به YouthGuard خوش آمدید</h1>
-        <p>پروتکل اعتماد و هویت غیرمتمرکز برای نسل جوان.</p>
-        <p>این پروژه برای هکاتون DoraHacks توسعه یافته است.</p>
+<div class="app">
+
+    <div class="card header">
+        <h1>🛡 دستیار هوشمند YouthGuard</h1>
+        <p>پاسخگوی فارسی مسائل بانکی، مالی و فناوری‌های وب ۳ (ZK)</p>
     </div>
+
+    <!-- دکمه‌های اتصال ولت برای دمو -->
+    <div class="card">
+        <div class="grid2">
+            <button class="btn btn-evm" onclick="connectEVM()">🔗 اتصال Trust Wallet / EVM</button>
+            <button class="btn btn-sol" onclick="connectSolana()">🟣 اتصال Solflare / Solana</button>
+        </div>
+        <div class="status" id="walletStatus"></div>
+    </div>
+
+    <!-- محیط چت -->
+    <div class="card">
+        <div class="chat" id="chat">
+            <div class="msg bot">سلام رفیق! من دستیار هوشمند فارسی‌زبان هستم 🤖
+هر سوالی در مورد <b>امور بانکی (پایا، ساتنا، شبا، کارت به کارت، چک صیادی، سقف انتقال)</b> یا فناوری <b>بلاک‌چین و هکاتون</b> داری بپرس، برات دقیق توضیح میدم!</div>
+        </div>
+
+        <div class="chips">
+            <button class="chip" onclick="quick('فرق پایا و ساتنا چیه؟')">فرق پایا و ساتنا</button>
+            <button class="chip" onclick="quick('شماره شبا چیه و چطور کار میکنه؟')">شماره شبا</button>
+            <button class="chip" onclick="quick('سقف کارت به کارت چقدره؟')">سقف کارت به کارت</button>
+            <button class="chip" onclick="quick('چک صیادی چطوری تایید میشه؟')">چک صیادی</button>
+            <button class="chip" onclick="quick('معماری ZK پروژه چیه؟')">معماری ZK هکاتون</button>
+        </div>
+
+        <div class="inputbar">
+            <input type="text" id="userInput" placeholder="سوالی درباره بانک یا وب۳ بپرسید..." onkeydown="if(event.key==='Enter')send()">
+            <button class="send" onclick="send()">ارسال</button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+/* ---------- Wallet Handlers ---------- */
+async function connectEVM(){
+    const s = document.getElementById('walletStatus');
+    if(!window.ethereum){ s.innerText='⚠️ ولت EVM (Trust Wallet یا MetaMask) پیدا نشد.'; return; }
+    try{
+        const acc = (await window.ethereum.request({method:'eth_requestAccounts'}))[0];
+        s.innerText='✅ EVM متصل شد: ' + acc.slice(0,6) + '...' + acc.slice(-4);
+    }catch(e){ s.innerText='❌ لغو شد'; }
+}
+async function connectSolana(){
+    const s = document.getElementById('walletStatus');
+    const p = window.solflare || window.solana;
+    if(!p){ s.innerText='⚠️ ولت Solana (Solflare یا Phantom) پیدا نشد.'; return; }
+    try{
+        await p.connect();
+        const pk = p.publicKey.toString();
+        s.innerText='✅ سولانا متصل شد: ' + pk.slice(0,5) + '...' + pk.slice(-4);
+    }catch(e){ s.innerText='❌ لغو شد'; }
+}
+
+/* ---------- AI Knowledge Base (بانکداری + وب۳) ---------- */
+const BANK_AI_KB = [
+    {
+        keys: ['پایا', 'ساتنا', 'فرق پایا', 'انتقال وجه'],
+        reply: "تفاوت پایا و ساتنا به زبان ساده:\n\n🔹 **پایا (سامانه اتاق پایاپای الکترونیکی):**\n• برای مبالغ خرد و متوسط استفاده میشه (تا سقف ۱۰۰ میلیون تومان در روز برای اینترنت‌بانک).\n• آنی نیست! در چند چرخه مشخص در شبانه‌روز (ساعت‌های حدود ۳:۴۵ صبح، ۱۰:۴۵ صبح، ۱۳:۴۵ و ۱۸:۴۵ عصر) به حساب می‌شینه.\n\n🔹 **ساتنا (سامانه تسویه ناخالص آنی):**\n• برای مبالغ سنگین است (معمولاً حداقل ۵۰ میلیون تومان به بالا).\n• کاملاً آنی و سریع منتقل میشه (معمولاً بین ۲ تا ۲۰ دقیقه در ساعات کاری بانکی).\n• در روزهای تعطیل یا خارج از تایم کاری بانک کار نمیکنه و صبح کاری بعد ارسال میشه."
+    },
+    {
+        keys: ['شبا', 'شماره شبا', 'iban', 'شناسه شبا'],
+        reply: "شماره شبا (شناسه بانکی ایران):\n• یک کد ۲۶ کاراکتری است که با کلمه IR شروع میشه.\n• برای انتقال با پایا و ساتنا الزامیه.\n• امنیت بسیار بالایی داره چون هیچ‌وقت امکان اشتباه شدن شماره کارت دیگران توش نیست (کد بررسی خطا داره).\n• با شماره کارت یا شماره حساب، توی سایت یا همراه بانک هر بانکی به راحتی میشه شبا رو دریافت کرد."
+    },
+    {
+        keys: ['سقف کارت', 'کارت به کارت', 'سقف انتقال'],
+        reply: "سقف‌های متداول انتقال بانکی در شبکه بانکی:\n• **کارت به کارت از اپلیکیشن‌ها (آپ، تاپ، همراه کارت و...):** معمولاً تا ۵ الی ۱۰ میلیون تومان در روز برای هر کارت.\n• **کارت به کارت از همراه بانک رسمی:** تا سقف ۱۰ الی ۱۵ میلیون تومان در روز.\n• **انتقال پایا اینترنتی:** تا سقف ۱۰۰ میلیون تومان روزانه.\n• **انتقال ساتنا اینترنتی:** معمولاً تا سقف ۲۰۰ میلیون تومان روزانه (و با توکن امنیتی یا حضوری در شعبه بدون سقف)."
+    },
+    {
+        keys: ['چک', 'صیاد', 'صیادی', 'ثبت چک', 'تایید چک'],
+        reply: "نکات مهم چک صیادی بنفش:\n۱. چک بدون ثبت در سامانه صیاد هیچ اعتباری نداره و بانک پاس نمیکنه.\n۲. **صادرکننده** باید شناسه ۱۶ رقمی صیادی، تاریخ، مبلغ و کدملی گیرنده رو در همراه بانک یا سامانه صیاد ثبت کنه.\n۳. **گیرنده** حتماً باید قبل از تحویل چک فیزیکی وارد سامانه بشه و دکمه «تایید چک» رو بزنه تا مالکیت به نامش منتقل بشه."
+    },
+    {
+        keys: ['وام', 'ضامن', 'اعتبارسنجی'],
+        reply: "در سیستم بانکی، دریافت وام به رتبه اعتبارسنجی (سامانه اعتبارسنجی بانک مرکزی) بستگی داره. اگر چک برگشتی یا بدهی معوق بانکی داشته باشید، سیستم قفل میشه. خیلی از بانک‌ها اخیراً وام‌های خرد (بدون ضامن و با سفته الکترونیک) را از طریق همراه‌بانک‌ها فعال کرده‌اند."
+    },
+    {
+        keys: ['کارمزد'],
+        reply: "کارمزدهای بانکی متداول:\n• کارت به کارت تا ۱ میلیون: ۷۲۰ تومان (و به ازای هر ۱ میلیون اضافه، مبلغ ۲۸۰ تومان بیشتر میشه).\n• پایا: ۰.۰۲٪ مبلغ تراکنش (حداقل ۲۴۰ تومان و حداکثر ۳,۰۰۰ تومان).\n• ساتنا: ۰.۰۲٪ مبلغ تراکنش (حداکثر ۲۵,۰۰۰ تومان)."
+    },
+    {
+        keys: ['zk', 'پروژه', 'هکاتون', 'youthguard', 'معماری'],
+        reply: "پروتکل YouthGuard از فناوری ZK-Proof (اثبات دانش صفر) استفاده می‌کنه تا کاربر بتونه شرط سنی یا احراز هویت وب۳ رو ثابت کنه بدون اینکه اطلاعات محرمانه (مثل کارت ملی یا مشخصات) افشا بشه."
+    }
+];
+
+const DEFAULT_BANK_REPLY = "سوالت رو متوجه شدم. من می‌تونم در مورد انواع روش‌های بانکی (پایا، ساتنا، شبا، چک صیاد، کارت به کارت و سقف مبالغ) یا قراردادهای وب۳ راهنماییت کنم. لطفاً دقیق‌تر بپرس تا جواب کامل بدم!";
+
+function getBotAnswer(query){
+    const q = query.toLowerCase();
+    for(const item of BANK_AI_KB){
+        if(item.keys.some(k => q.includes(k))) return item.reply;
+    }
+    return DEFAULT_BANK_REPLY;
+}
+
+function pushMessage(text, type){
+    const chat = document.getElementById('chat');
+    const div = document.createElement('div');
+    div.className = 'msg ' + type;
+    div.innerText = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+    return div;
+}
+
+function ask(text){
+    pushMessage(text, 'user');
+    const loading = pushMessage('در حال جستجو و پاسخ...', 'bot');
+    setTimeout(() => {
+        loading.remove();
+        pushMessage(getBotAnswer(text), 'bot');
+    }, 400);
+}
+
+function send(){
+    const inp = document.getElementById('userInput');
+    if(!inp.value.trim()) return;
+    ask(inp.value.trim());
+    inp.value = '';
+}
+
+function quick(q){ ask(q); }
+</script>
 </body>
 </html>
