@@ -88,3 +88,56 @@
           </div>
           <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-3">
             <div class="text-xs text-slate-400">وضعیت قراردادها</div>
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 w-full flex-1">
+    <div id="tab-dashboard" class="tab-content space-y-6">
+      <div class="glass rounded-2xl p-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs mb-4">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Official DoraHacks Submission</span>
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-black text-white leading-tight">Web3 Legal Identity</h2>
+        <p class="mt-3 text-slate-300 text-sm leading-relaxed max-w-4xl">YouthGuard bridges the gap between law and on-chain assets using ZK-SNARKs.</p>
+        <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4"><span class="text-xs text-slate-400">Token</span><div class="text-base font-bold text-blue-400 mono">ERC-5192</div></div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4"><span class="text-xs text-slate-400">Privacy</span><div class="text-base font-bold text-emerald-400 mono">Groth16 ZK</div></div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4"><span class="text-xs text-slate-400">Storage</span><div class="text-base font-bold text-purple-400 mono">IPFS</div></div>
+          <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4"><span class="text-xs text-slate-400">Network</span><div class="text-base font-bold text-amber-400 mono">Sepolia</div></div>
+        </div>
+      </div>
+      <div class="glass rounded-2xl p-6">
+        <h3 class="font-bold text-white text-lg mb-4">⚡ Protocol Simulator</h3>
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+          <button onclick="runStep(1)" class="p-3.5 rounded-xl border border-blue-500/40 bg-blue-600/10 hover:bg-blue-600/25 transition text-xs font-bold text-blue-300">1. Generate ZK</button>
+          <button onclick="runStep(2)" class="p-3.5 rounded-xl border border-purple-500/40 bg-purple-600/10 hover:bg-purple-600/25 transition text-xs font-bold text-purple-300">2. Mint SBT</button>
+          <button onclick="runStep(3)" class="p-3.5 rounded-xl border border-amber-500/40 bg-amber-600/10 hover:bg-amber-600/25 transition text-xs font-bold text-amber-300">3. File Case</button>
+          <button onclick="runStep(4)" class="p-3.5 rounded-xl border border-emerald-500/40 bg-emerald-600/10 hover:bg-emerald-600/25 transition text-xs font-bold text-emerald-300">4. Verdict</button>
+        </div>
+        <div id="terminal" class="bg-black/85 border border-slate-800 rounded-xl p-4 mono text-[10px] text-emerald-400 h-32 overflow-y-auto"><div>&gt; System Ready...</div></div>
+      </div>
+    </div>
+۸    <div id="tab-mint" class="tab-content hidden space-y-6">
+      <div class="glass rounded-2xl p-8 max-w-xl mx-auto text-center">
+        <h2 class="text-xl font-bold text-white mb-4">Mint Your ZK-Identity</h2>
+        <button onclick="logTerm('> Minting Identity #402...')" class="bg-blue-600 px-6 py-3 rounded-xl font-bold">Start Minting</button>
+      </div>
+    </div>
+    <div id="tab-court" class="tab-content hidden space-y-6">
+      <div class="glass rounded-2xl p-6 text-xs text-white">Active Cases: #CAS-089 (Unpaid Bounty) - Pending AI Review</div>
+    </div>
+    <div id="tab-docs" class="tab-content hidden space-y-6">
+      <div class="glass rounded-2xl p-6 text-sm text-slate-400">Documentation for DoraHacks Judges. Protocol Built with Solidity & SnarkJS.</div>
+    </div>
+  </main>
+  <script>
+    function switchTab(t) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active-tab'));
+      document.getElementById(t).classList.remove('hidden');
+      document.getElementById('btn-' + t).classList.add('active-tab');
+    }
+    function runStep(s) { logTerm('> Step ' + s + ' processed on-chain.'); }
+    function logTerm(t) { const d = document.createElement('div'); d.textContent = t; document.getElementById('terminal').appendChild(d); }
+    document.getElementById('walletBtn').addEventListener('click', () => { document.getElementById('walletBtn').textContent = '0x71C...Connected'; });
+  </script>
+</body>
+</html>
