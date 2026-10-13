@@ -1,0 +1,105 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+interface IYouthGuardSBT {
+    function verifyLegalStanding(address user) external view returns (bool);
+    function revokeAttestation(uint256 tokenId, string calldata reason) external;
+}
+
+/**
+ * @title LegalArbitration
+ * @notice Decentralized dispute resolution and legal enforcement layer for YouthGuard Protocol.
+ */
+contract LegalArbitration {
+    address public admin;
+    IYouthGuardSBT public sbtContract;
+
+    enum DisputeStatus { Pending, UnderReview, Resolved, Dismissed }
+
+    struct Dispute {
+        uint256 id;
+        address claimant;
+        address respondent;
+        bytes32 evidenceHash; // IPFS / ZK-Proof hash of legal evidence
+        string description;
+        DisputeStatus status;
+        uint64 createdAt;
+        string resolutionVerdict;
+    }
+
+    uint256 private _disputeCounter;
+    mapping(uint256 => Dispute) public disputes;
+    mapping(address => bool) public authorizedArbitrators;
+
+    event DisputeFiled(uint256 indexed disputeId, address indexed claimant, address indexed respondent);
+    event DisputeResolved(uint256 indexed disputeId, DisputeStatus status, string verdict);
+    event ArbitratorUpdated(address indexed arbitrator, bool status);
+
+    modifier onlyAdmin() {
+        require(msg.sender == admin, "LegalArbitration: Not admin");
+        _;
+    }
+
+    modifier onlyArbitrator() {
+        require(authorizedArbitrators[msg.sender] || msg.sender == admin, "LegalArbitration: Not an authorized arbitrator");
+        _;
+    }
+
+    constructor(address _sbtContract) {
+        admin = msg.sender;
+        sbtContract = IYouthGuardSBT(_sbtContract);
+        authorizedArbitrators[msg.sender] = true;
+    }
+
+    function setArbitrator(address arbitrator, bool status) external onlyAdmin {
+        authorizedArbitrators[arbitrator] = status;
+        emit ArbitratorUpdated(arbitrator, status);
+    }
+
+    /**
+     * @notice File a new legal dispute on-chain. Claimant must hold a valid YouthGuard SBT.
+     */
+    function fileDispute(
+        address respondent,
+        bytes32 evidenceHash,
+        string calldata description
+    ) external returns (uint256) {
+        require(sbtContract.verifyLegalStanding(msg.sender), "LegalArbitration: Claimant lacks valid YouthGuard SBT");
+        require(respondent != address(0) && respondent != msg.sender, "LegalArbitration: Invalid respondent");
+
+        uint256 disputeId = ++_disputeCounter;
+
+        disputes[disputeId] = Dispute({
+            id: disputeId,
+            claimant: msg.sender,
+            respondent: respondent,
+            evidenceHash: evidenceHash,
+            description: description,
+            status: DisputeStatus.Pending,
+            createdAt: uint64(block.timestamp),
+            resolutionVerdict: ""
+        });
+
+        emit DisputeFiled(disputeId, msg.sender, respondent);
+        return disputeId;
+    }
+
+    /**
+     * @notice Resolve an active dispute by an authorized legal arbitrator.
+     */
+    function resolveDispute(
+        uint256 disputeId,
+        DisputeStatus newStatus,
+        string calldata verdict
+    ) external onlyArbitrator {
+        Dispute storage d = disputes[disputeId];
+        require(d.id != 0, "LegalArbitration: Dispute does not exist");
+        require(d.status == DisputeStatus.Pending || d.status == DisputeStatus.UnderReview, "LegalArbitration: Already closed");
+        require(newStatus == DisputeStatus.Resolved || newStatus == DisputeStatus.Dismissed, "LegalArbitration: Invalid resolution status");
+
+        d.status = newStatus;
+        d.resolutionVerdict = verdict;
+
+        emit DisputeResolved(disputeId, newStatus, verdict);
+    }
+}
